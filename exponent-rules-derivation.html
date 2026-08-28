@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>There is only one exponent rule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400;1,8..60,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #17223B;
+    --slate:      #5A6478;
+    --paper:      #F7F6F2;
+    --card:       #FFFFFF;
+    --rule:       #DCD9D0;
+
+    --count:      #1D6FA3;
+    --count-bg:   #E8F1F8;
+    --count-ink:  #124B70;
+
+    --forced:     #6B3FA0;
+    --forced-bg:  #F1EAF9;
+    --forced-ink: #472A6E;
+
+    --def:        #A8A69C;
+    --def-bg:     #EFEEE9;
+    --def-ink:    #4A4A45;
+
+    --ok:         #0E7C6B;
+    --ok-bg:      #ECF6F3;
+    --warn:       #C2410C;
+    --warn-bg:    #FBF0E9;
+
+    --dim-text:   #A8A69C;
+
+    --display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+    --body:    "Source Serif 4", Georgia, "Times New Roman", serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 40px 20px 90px;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 700px; margin: 0 auto; }
+
+  .var { font-style: italic; }
+
+  /* ---------- masthead ---------- */
+
+  .eyebrow {
+    font-family: var(--display);
+    font-size: 11px; font-weight: 500;
+    letter-spacing: .18em; text-transform: uppercase;
+    color: var(--slate); margin: 0 0 14px;
+  }
+  h1 {
+    font-family: var(--display);
+    font-size: clamp(28px, 6vw, 40px);
+    font-weight: 700; line-height: 1.12; letter-spacing: -.02em;
+    margin: 0 0 16px;
+  }
+  .standfirst { font-size: 18px; color: var(--slate); margin: 0 0 28px; max-width: 54ch; }
+
+  /* ---------- the map ---------- */
+
+  .map-card {
+    position: sticky; top: 0; z-index: 5;
+    background: var(--card);
+    border: 1px solid var(--rule); border-radius: 4px;
+    padding: 14px 16px 12px; margin-bottom: 18px;
+  }
+  .map-title {
+    font-family: var(--display);
+    font-size: 10px; font-weight: 500;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--slate); margin: 0 0 10px;
+  }
+  #map-svg { display: block; width: 100%; height: auto; }
+  #map-chips { display: none; flex-wrap: wrap; gap: 6px; }
+
+  .chip {
+    font-family: var(--display); font-size: 11px; font-weight: 500;
+    padding: 5px 9px; border-radius: 3px;
+    background: var(--paper); border: 1px solid var(--rule);
+    color: var(--dim-text);
+  }
+  .chip.lit.t-count  { background: var(--count-bg);  border-color: var(--count);  color: var(--count-ink); }
+  .chip.lit.t-forced { background: var(--forced-bg); border-color: var(--forced); color: var(--forced-ink); }
+  .chip.lit.t-def    { background: var(--def-bg);    border-color: var(--def);    color: var(--def-ink); }
+
+  .n rect { fill: var(--paper); stroke: var(--rule); }
+  .n text { fill: var(--dim-text); }
+  .n.lit.t-count  rect { fill: var(--count-bg);  stroke: var(--count); }
+  .n.lit.t-count  text { fill: var(--count-ink); }
+  .n.lit.t-forced rect { fill: var(--forced-bg); stroke: var(--forced); }
+  .n.lit.t-forced text { fill: var(--forced-ink); }
+  .n.lit.t-def    rect { fill: var(--def-bg);    stroke: var(--def); }
+  .n.lit.t-def    text { fill: var(--def-ink); }
+  .n rect, .n text { transition: fill .45s ease, stroke .45s ease; }
+  .n .fx { opacity: .82; }
+  .n:not(.lit) .fx { opacity: .5; }
+  .chip .cf {
+    margin-left: 7px; font-family: var(--body); font-style: italic;
+    font-size: 12px; opacity: .8;
+  }
+  .chip:not(.lit) .cf { opacity: .55; }
+
+  .e { stroke: var(--rule); stroke-width: 1; fill: none; transition: stroke .45s ease; }
+  .e.lit { stroke: #9B93AE; }
+
+  .legend {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    margin-top: 10px; font-family: var(--display); font-size: 11px; color: var(--slate);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 11px; height: 11px; border-radius: 2px; border: 1px solid; display: inline-block; }
+  .sw.c { background: var(--count-bg);  border-color: var(--count); }
+  .sw.f { background: var(--forced-bg); border-color: var(--forced); }
+
+  /* ---------- ledger ---------- */
+
+  .ledger-card {
+    background: var(--card); border: 1px solid var(--rule); border-radius: 4px;
+    padding: 16px; margin-bottom: 18px;
+  }
+  .ledger-card[hidden] { display: none; }
+  .ledger { display: flex; gap: 5px; align-items: stretch; }
+  .cell {
+    flex: 1 1 0; min-width: 0; text-align: center;
+    padding: 8px 2px; border: 1px solid var(--rule); border-radius: 3px;
+    background: var(--paper);
+    transition: background .4s ease, border-color .4s ease;
+  }
+  .cell.known { background: var(--count-bg); border-color: var(--count); }
+  .cell.just  { background: var(--forced-bg); border-color: var(--forced); }
+  .cell.bad   { background: var(--warn-bg); border-color: var(--warn); }
+  .cell.half  { flex: 0 0 62px; background: var(--forced-bg); border-color: var(--forced); }
+  .cell .exp {
+    font-family: var(--display); font-size: 12px; font-weight: 500;
+    color: var(--slate); display: block; line-height: 1.3;
+  }
+  .cell .val {
+    font-family: var(--body); font-size: 16px; display: block;
+    margin-top: 3px; line-height: 1.3; overflow-wrap: anywhere;
+  }
+  .cell .val.unk { color: var(--dim-text); }
+  .cell.bad .val { color: var(--warn); font-size: 12px; }
+
+  .base-row {
+    display: flex; align-items: center; gap: 12px; margin-top: 14px;
+  }
+  .base-row label {
+    font-family: var(--display); font-size: 11px; font-weight: 500;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--slate);
+  }
+  .base-row output {
+    font-family: var(--display); font-size: 14px; font-weight: 500;
+    min-width: 20px; text-align: right;
+  }
+  input[type=range] {
+    flex: 1; -webkit-appearance: none; appearance: none;
+    height: 22px; background: transparent; cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-runnable-track { height: 2px; background: var(--rule); }
+  input[type=range]::-moz-range-track { height: 2px; background: var(--rule); }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 16px; height: 16px; margin-top: -7px;
+    border-radius: 50%; background: var(--count); border: 2px solid var(--card);
+    box-shadow: 0 0 0 1px var(--count);
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--count); border: 2px solid var(--card);
+  }
+  input[type=range]:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+
+  .ledger-note { font-size: 15px; color: var(--slate); margin: 12px 0 0; }
+  .ledger-note[hidden] { display: none; }
+
+  /* ---------- sections ---------- */
+
+  .sec {
+    background: var(--card); border: 1px solid var(--rule); border-radius: 4px;
+    padding: 24px; margin-bottom: 14px;
+  }
+  .sec[hidden] { display: none; }
+  .sec-no {
+    font-family: var(--display); font-size: 11px; font-weight: 500;
+    letter-spacing: .14em; color: var(--slate); display: block; margin-bottom: 10px;
+  }
+  h2 {
+    font-family: var(--display); font-size: 20px; font-weight: 500;
+    letter-spacing: -.01em; margin: 0 0 12px;
+  }
+  .sec p { margin: 0 0 14px; }
+  .sec p:last-child { margin-bottom: 0; }
+
+  /* ---------- collapsing ---------- */
+
+  .sec-head, .q-head { position: relative; padding-right: 28px; }
+  .sec.done .sec-head, .q.done .q-head { cursor: pointer; }
+  .sec-head:focus-visible, .q-head:focus-visible {
+    outline: 2px solid var(--ink); outline-offset: 5px; border-radius: 3px;
+  }
+  .sec.collapsed .sec-body, .q.collapsed .q-body { display: none; }
+  .sec.collapsed { padding: 15px 24px; }
+  .sec.collapsed h2 { font-size: 15px; color: var(--slate); margin: 0; }
+  .q.collapsed { padding: 13px 16px; }
+
+  .caret { display: none; position: absolute; right: 2px; top: 6px; }
+  .sec.done .caret, .q.done .caret { display: block; }
+  .caret::before {
+    content: ""; display: block; width: 7px; height: 7px;
+    border-right: 1.5px solid var(--slate); border-bottom: 1.5px solid var(--slate);
+    transform: rotate(45deg); transition: transform .2s ease;
+  }
+  .sec.collapsed .caret::before, .q.collapsed .caret::before { transform: rotate(-45deg); }
+
+  .resolved { display: none; }
+  .sec.collapsed .resolved, .q.collapsed .resolved {
+    display: block; margin-top: 5px;
+    font-family: var(--body); font-style: italic; font-size: 16px;
+    color: var(--forced);
+  }
+  .resolved .lbl {
+    font-family: var(--display); font-style: normal; font-size: 11px;
+    font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--slate); margin-right: 8px;
+  }
+
+  .q {
+    background: var(--paper); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 18px; margin-bottom: 10px;
+  }
+  .q[hidden] { display: none; }
+  .q .tiles { background: var(--card); }
+  .q-label {
+    display: block; font-family: var(--display); font-size: 11px; font-weight: 500;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--slate);
+    margin-bottom: 10px;
+  }
+  .q.collapsed .q-label { margin-bottom: 0; }
+
+  /* ---------- tiles ---------- */
+
+  .tiles {
+    display: flex; align-items: center; justify-content: center;
+    flex-wrap: wrap; gap: 10px;
+    padding: 20px 12px; margin-bottom: 16px;
+    background: var(--paper); border-radius: 3px; min-height: 78px;
+  }
+  .grp {
+    display: flex; gap: 4px; padding: 7px 9px;
+    border: 1px dashed var(--rule); border-radius: 3px;
+  }
+  .grp.stack { flex-direction: column; }
+  .tok {
+    width: 26px; height: 26px; border-radius: 3px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--body); font-style: italic; font-size: 15px;
+  }
+  .tok.a { background: var(--count-bg); color: var(--count-ink); border: 1px solid var(--count); }
+  .tok.b { background: var(--forced-bg); color: var(--forced-ink); border: 1px solid var(--forced); }
+  .op { font-family: var(--body); font-size: 20px; color: var(--slate); }
+
+  /* ---------- law bench ---------- */
+
+  .law {
+    padding: 12px 16px; margin-bottom: 14px;
+    background: var(--paper); border: 1px solid var(--rule); border-radius: 3px;
+    text-align: center; transition: background .3s ease, border-color .3s ease;
+  }
+  .law .tag {
+    font-family: var(--display); font-size: 10px; font-weight: 500;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--slate);
+    display: block; margin-bottom: 6px;
+  }
+  .law .expr { font-size: 21px; }
+  .law.broken { background: var(--warn-bg); border-color: var(--warn); }
+  .law.broken .expr { color: var(--warn); text-decoration: line-through; }
+  .law.held { background: var(--ok-bg); border-color: var(--ok); }
+
+  .bench {
+    font-size: 19px; text-align: center;
+    padding: 14px 10px; margin-bottom: 14px;
+    border-left: 2px solid var(--rule);
+  }
+  .bench div { margin: 5px 0; }
+  .bench .lead { font-size: 15px; color: var(--slate); font-family: var(--display); }
+
+  /* ---------- questions ---------- */
+
+  .options { display: grid; gap: 8px; }
+  .opt {
+    font-family: var(--body); font-size: 17px; text-align: left;
+    padding: 12px 16px; background: var(--paper);
+    border: 1px solid var(--rule); border-radius: 3px;
+    color: var(--ink); cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--count); }
+  .opt:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .opt:disabled { cursor: default; opacity: .5; }
+  .opt.right { background: var(--ok-bg); border-color: var(--ok); opacity: 1; }
+  .opt.wrong { background: var(--warn-bg); border-color: var(--warn); opacity: 1; }
+
+  .feedback {
+    margin-top: 14px; padding-left: 14px;
+    border-left: 2px solid var(--rule); color: var(--slate); font-size: 16px;
+  }
+  .feedback[hidden] { display: none; }
+  .feedback.right { border-left-color: var(--ok); }
+  .feedback.wrong { border-left-color: var(--warn); }
+
+  .next {
+    font-family: var(--display); font-size: 13px; font-weight: 500;
+    margin-top: 16px; padding: 10px 20px;
+    background: var(--ink); color: var(--paper);
+    border: none; border-radius: 3px; cursor: pointer;
+  }
+  .next[hidden] { display: none; }
+  .next:hover { background: var(--count); }
+  .next:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  /* ---------- assembly puzzle ---------- */
+
+  .deriv { margin-bottom: 16px; }
+  .line {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 10px 12px; border-radius: 3px;
+    border: 1px solid transparent;
+  }
+  .line.active { background: var(--paper); border-color: var(--rule); }
+  .line.done .why { color: var(--ok); }
+  .line .math { font-size: 18px; flex: 1 1 190px; }
+  .line .why {
+    font-family: var(--display); font-size: 12px; font-weight: 500;
+    color: var(--dim-text); flex: 0 1 auto; text-align: right;
+  }
+  .bank { display: flex; flex-wrap: wrap; gap: 8px; }
+  .bank button {
+    font-family: var(--display); font-size: 13px;
+    padding: 8px 13px; background: var(--paper);
+    border: 1px solid var(--rule); border-radius: 3px;
+    color: var(--ink); cursor: pointer;
+  }
+  .bank button:hover:not(:disabled) { border-color: var(--forced); }
+  .bank button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .bank button:disabled { opacity: .4; cursor: default; }
+  .shake { animation: shake .3s ease; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+
+  details summary {
+    font-family: var(--display); font-size: 13px; font-weight: 500;
+    cursor: pointer; color: var(--count); padding: 4px 0;
+  }
+  details summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  details p { margin-top: 10px; color: var(--slate); font-size: 16px; }
+
+  footer {
+    margin-top: 34px; padding-top: 16px; border-top: 1px solid var(--rule);
+    font-family: var(--display); font-size: 12px; color: var(--slate); line-height: 1.7;
+  }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+
+  @media (max-width: 620px) {
+    #map-svg { display: none; }
+    #map-chips { display: flex; }
+    .map-card { position: static; }
+    .cell .val { font-size: 13px; }
+    .cell .exp { font-size: 11px; }
+    .cell.half { flex: 0 0 50px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) { *, *::before { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Algebra &middot; Properties of exponents</p>
+  <h1>There is only one exponent rule</h1>
+  <p class="standfirst">You were handed eight of them to memorise. Seven are consequences of the first one refusing to break.</p>
+
+  <div class="map-card">
+    <p class="map-title">What you&rsquo;ve derived so far</p>
+    <svg id="map-svg" viewBox="0 0 660 162" role="img" aria-labelledby="map-t map-d">
+      <title id="map-t">Map of the exponent rules</title>
+      <desc id="map-d">Nine rules connected by dependency arrows. Each lights up and shows its general form once you derive it.</desc>
+
+      <path class="e" id="e-def-product" d="M74 80 H82 V26 H90"/>
+      <path class="e" id="e-def-power" d="M74 80 H90"/>
+      <path class="e" id="e-def-powerproduct" d="M74 80 H82 V134 H90"/>
+      <path class="e" id="e-product-zero" d="M220 26 H236"/>
+      <path class="e" id="e-zero-negative" d="M366 26 H382"/>
+      <path class="e" id="e-negative-quotient" d="M512 26 H528"/>
+      <path class="e" id="e-power-fractional" d="M220 80 H236"/>
+      <path class="e" id="e-pp-pf" d="M220 134 H528"/>
+      <path class="e" id="e-neg-pf" d="M447 48 V90 H593 V112"/>
+
+      <g class="n t-def lit" id="n-definition">
+        <rect x="2" y="58" width="72" height="44" rx="5" stroke-width="1"/>
+        <text x="38" y="75" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="10" font-weight="500">Definition</text>
+        <text class="fx" id="fx-definition" x="38" y="91" text-anchor="middle" font-family="Source Serif 4, Georgia, serif" font-style="italic" font-size="11">?</text>
+      </g>
+      <g class="n t-count" id="n-product">
+        <rect x="90" y="4" width="130" height="44" rx="5" stroke-width="1"/>
+        <text x="155" y="21" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="10" font-weight="500">Product rule</text>
+        <text class="fx" id="fx-product" x="155" y="37" text-anchor="middle" font-family="Source Serif 4, Georgia, serif" font-style="italic" font-size="11">?</text>
+      </g>
+      <g class="n t-count" id="n-power">
+        <rect x="90" y="58" width="130" height="44" rx="5" stroke-width="1"/>
+        <text x="155" y="75" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="10" font-weight="500">Power rule</text>
+        <text class="fx" id="fx-power" x="155" y="91" text-anchor="middle" font-family="Source Serif 4, Georgia, serif" font-style="italic" font-size="11">?</text>
+      </g>
+      <g class="n t-count" id="n-powerproduct">
+        <rect x="90" y="112" width="130" height="44" rx="5" stroke-width="1"/>
+        <text x="155" y="129" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="10" font-weight="500">Power of a product</text>
+        <text class="fx" id="fx-powerproduct" x="155" y="145" text-anchor="middle" font-family="Source Serif 4, Georgia, serif" font-style="italic" font-size="11">?</text>
+      </g>
+      <g class="n t-forced" id="n-zero">
+        <rect x="236" y="4" width="130" height="44" rx="5" stroke-width="1"/>
+        <text x="301" y="21" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="10" font-weight="500">Zero exponent</text>
+        <text class="fx" id="fx-zero" x="301" y="37" text-anchor="middle" font-family="Source Serif 4, Georgia, serif" font-style="italic" font-size="11">?</text>
+      </g>
+      <g class="n t-forced" id="n-fractional">
+        <rect x="236" y="58" width="130" height="44" rx="5" stroke-width="1"/>
+        <text x="301" y="75" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="10" font-weight="500">Fractional exponent</text>
+        <text class="fx" id="fx-fractional" x="301" y="91" text-anchor="middle" font-family="Source Serif 4, Georgia, serif" font-style="italic" font-size="11">?</text>
+      </g>
+      <g class="n t-forced" id="n-negative">
+        <rect x="382" y="4" width="130" height="44" rx="5" stroke-width="1"/>
+        <text x="447" y="21" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="10" font-weight="500">Negative exponent</text>
+        <text class="fx" id="fx-negative" x="447" y="37" text-anchor="middle" font-family="Source Serif 4, Georgia, serif" font-style="italic" font-size="11">?</text>
+      </g>
+      <g class="n t-forced" id="n-quotient">
+        <rect x="528" y="4" width="130" height="44" rx="5" stroke-width="1"/>
+        <text x="593" y="21" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="10" font-weight="500">Quotient rule</text>
+        <text class="fx" id="fx-quotient" x="593" y="37" text-anchor="middle" font-family="Source Serif 4, Georgia, serif" font-style="italic" font-size="11">?</text>
+      </g>
+      <g class="n t-forced" id="n-powerfraction">
+        <rect x="528" y="112" width="130" height="44" rx="5" stroke-width="1"/>
+        <text x="593" y="129" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="10" font-weight="500">Power of a fraction</text>
+        <text class="fx" id="fx-powerfraction" x="593" y="145" text-anchor="middle" font-family="Source Serif 4, Georgia, serif" font-style="italic" font-size="11">?</text>
+      </g>
+    </svg>
+    <div id="map-chips"></div>
+    <div class="legend">
+      <span><i class="sw c"></i> True by counting</span>
+      <span><i class="sw f"></i> Forced by consistency</span>
+    </div>
+  </div>
+
+  <div class="ledger-card" id="ledger-card" hidden>
+    <p class="map-title">The ledger</p>
+    <div class="ledger" id="ledger"></div>
+    <div class="base-row">
+      <label for="base">Base</label>
+      <input type="range" id="base" min="0" max="6" step="1" value="2" />
+      <output id="base-out" for="base">2</output>
+    </div>
+    <p class="ledger-note" id="ledger-note" hidden></p>
+  </div>
+
+  <!-- ============ 1. counting tier ============ -->
+  <section class="sec" id="sec-tiles">
+    <span class="sec-no">Part one &middot; What counting gives you</span>
+    <h2>Three rules you can prove by counting</h2>
+    <p>An exponent starts life as shorthand. <span class="var">a</span><sup>3</sup> means three copies of <span class="var">a</span> multiplied together &mdash; nothing more. Each tile below is one copy.</p>
+
+    <div id="tile-stack"></div>
+  </section>
+
+  <!-- ============ 2. zero ============ -->
+  <section class="sec" id="sec-zero" hidden>
+    <span class="sec-no">Part two &middot; Where counting runs out</span>
+    <h2>What could <span class="var">a</span><sup>0</sup> possibly mean?</h2>
+    <p>How many copies of <span class="var">a</span> are multiplied in <span class="var">a</span><sup>0</sup>? None. So the tiles say the answer is nothing at all &mdash; zero.</p>
+    <p>Let&rsquo;s test that against the rule you just proved.</p>
+    <div class="law" id="law-zero">
+      <span class="tag">The law under test</span>
+      <span class="expr"><span class="var">a</span><sup>x</sup> &middot; <span class="var">a</span><sup>y</sup> = <span class="var">a</span><sup>x+y</sup></span>
+    </div>
+    <div class="bench">
+      <div class="lead">The law says</div>
+      <div>2<sup>0</sup> &middot; 2<sup>3</sup> = 2<sup>0+3</sup> = 2<sup>3</sup> = 8</div>
+      <div class="lead">so whatever 2<sup>0</sup> is, it must satisfy</div>
+      <div>2<sup>0</sup> &times; 8 = 8</div>
+    </div>
+    <div class="options" id="o-zero"></div>
+    <div class="feedback" id="f-zero" hidden></div>
+    <button class="next" id="n-zero-btn" hidden>Continue</button>
+  </section>
+
+  <!-- ============ 3. negative ============ -->
+  <section class="sec" id="sec-negative" hidden>
+    <span class="sec-no">Part three</span>
+    <h2>And <span class="var">a</span><sup>&minus;1</sup>?</h2>
+    <p>Multiplying something by itself negative once is not a thing you can do. But the law does not care what you can picture. It only cares about being obeyed.</p>
+    <div class="law" id="law-negative">
+      <span class="tag">The law under test</span>
+      <span class="expr"><span class="var">a</span><sup>x</sup> &middot; <span class="var">a</span><sup>y</sup> = <span class="var">a</span><sup>x+y</sup></span>
+    </div>
+    <div class="bench">
+      <div class="lead">The law says</div>
+      <div>2<sup>&minus;1</sup> &middot; 2<sup>1</sup> = 2<sup>&minus;1+1</sup> = 2<sup>0</sup> = 1</div>
+      <div class="lead">so whatever 2<sup>&minus;1</sup> is, it must satisfy</div>
+      <div>2<sup>&minus;1</sup> &times; 2 = 1</div>
+    </div>
+    <div class="options" id="o-negative"></div>
+    <div class="feedback" id="f-negative" hidden></div>
+    <button class="next" id="n-negative-btn" hidden>Continue</button>
+  </section>
+
+  <!-- ============ 4. fractional ============ -->
+  <section class="sec" id="sec-fractional" hidden>
+    <span class="sec-no">Part four</span>
+    <h2>Half a copy of <span class="var">a</span></h2>
+    <p>This time the product rule is not the one doing the forcing. The power rule is.</p>
+    <div class="law" id="law-fractional">
+      <span class="tag">The law under test</span>
+      <span class="expr">(<span class="var">a</span><sup>x</sup>)<sup>y</sup> = <span class="var">a</span><sup>xy</sup></span>
+    </div>
+    <div class="bench">
+      <div class="lead">The law says</div>
+      <div>(2<sup>&frac12;</sup>)<sup>2</sup> = 2<sup>&frac12; &middot; 2</sup> = 2<sup>1</sup> = 2</div>
+      <div class="lead">so whatever 2<sup>&frac12;</sup> is, multiplying it by itself must give 2</div>
+    </div>
+    <div class="options" id="o-fractional"></div>
+    <div class="feedback" id="f-fractional" hidden></div>
+    <button class="next" id="n-fractional-btn" hidden>Continue</button>
+  </section>
+
+  <!-- ============ 5. quotient ============ -->
+  <section class="sec" id="sec-quotient" hidden>
+    <span class="sec-no">Part five &middot; Assembly</span>
+    <h2>The quotient rule is already yours</h2>
+    <p>Nothing new needs deciding here. Every move below is a rule you have already unlocked. Name the one that justifies each line.</p>
+    <div class="deriv" id="d-quotient"></div>
+    <div class="bank" id="b-quotient"></div>
+    <div class="feedback" id="f-quotient" hidden></div>
+    <button class="next" id="n-quotient-btn" hidden>Continue</button>
+  </section>
+
+  <!-- ============ 6. power of a fraction ============ -->
+  <section class="sec" id="sec-powerfraction" hidden>
+    <span class="sec-no">Part six &middot; Assembly</span>
+    <h2>The last one leans on nearly all the others</h2>
+    <p>Four moves, and one rule gets used twice.</p>
+    <div class="deriv" id="d-pf"></div>
+    <div class="bank" id="b-pf"></div>
+    <div class="feedback" id="f-pf" hidden></div>
+    <button class="next" id="n-pf-btn" hidden>Continue</button>
+  </section>
+
+  <!-- ============ 7. coda ============ -->
+  <section class="sec" id="sec-coda" hidden>
+    <span class="sec-no">The result</span>
+    <h2>Eight rules, one decision</h2>
+    <p>Only the top row was ever a discovery. Everything below it was forced: at each step there was exactly one value that let the law survive, and that value became the definition. Nobody voted on <span class="var">a</span><sup>0</sup> = 1. It was the only option left standing.</p>
+    <p>Two conditions on the printed table finally make sense.</p>
+    <p><button class="next" id="try-zero" style="margin-top:0">Set the base to 0</button></p>
+    <details>
+      <summary>Why the table also needs <span class="var">a</span> &gt; 0, not just <span class="var">a</span> &ne; 0</summary>
+      <p>Most textbook tables print &ldquo;<span class="var">a</span> &ne; 0&rdquo; above the whole list, and for the first seven rules that is enough. Fractional exponents need more. (&minus;8)<sup>1/3</sup> = &minus;2 is perfectly fine, but (&minus;4)<sup>1/2</sup> asks for a number that squares to &minus;4, and no real number does. Once you allow arbitrary fractional exponents on a negative base, the law you spent this lesson protecting stops holding. So the honest condition for the last two rows is <span class="var">a</span> &gt; 0.</p>
+    </details>
+  </section>
+
+  <footer>
+    Built by Matthew Byers &middot; <a href="mailto:mattrbyers7@gmail.com" style="color: var(--count);">mattrbyers7@gmail.com</a><br>
+    Aligned to CCSS 8.EE.A.1 and HSN.RN.A.1 &mdash; properties of integer and rational exponents.
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var V = "<span class='var'>";
+
+  var TIERS = {
+    definition: "def", product: "count", power: "count", powerproduct: "count",
+    zero: "forced", negative: "forced", quotient: "forced",
+    fractional: "forced", powerfraction: "forced"
+  };
+
+  var CHIP_LABELS = {
+    definition: "Definition", product: "Product rule", power: "Power rule",
+    powerproduct: "Power of a product", zero: "Zero exponent",
+    negative: "Negative exponent", quotient: "Quotient rule",
+    fractional: "Fractional exponent", powerfraction: "Power of a fraction"
+  };
+
+  var S = 1, B = 0;
+  var FORMULAS = {
+    definition:    [["a",B],["x",S],[" = a\u00B7a\u00B7\u2026\u00B7a",B]],
+    product:       [["a",B],["x",S],[" \u00B7 a",B],["y",S],[" = a",B],["x+y",S]],
+    power:         [["(a",B],["x",S],[")",B],["y",S],[" = a",B],["xy",S]],
+    powerproduct:  [["(ab)",B],["x",S],[" = a",B],["x",S],["b",B],["x",S]],
+    zero:          [["a",B],["0",S],[" = 1",B]],
+    negative:      [["a",B],["\u2212x",S],[" = 1 / a",B],["x",S]],
+    quotient:      [["a",B],["x",S],[" \u00F7 a",B],["y",S],[" = a",B],["x\u2212y",S]],
+    fractional:    [["a",B],["x/y",S],[" = ",B],["y",S],["\u221Aa",B],["x",S]],
+    powerfraction: [["(a/b)",B],["x",S],[" = a",B],["x",S],[" / b",B],["x",S]]
+  };
+
+  function fxSvg(parts) {
+    var out = "", prev = B;
+    parts.forEach(function (p) {
+      var dy = p[1] === prev ? 0 : (p[1] === S ? -4 : 4);
+      out += "<tspan font-size='" + (p[1] === S ? "7.5" : "11") + "'" +
+             (dy ? " dy='" + dy + "'" : "") + ">" + p[0] + "</tspan>";
+      prev = p[1];
+    });
+    return out;
+  }
+
+  function fxHtml(parts) {
+    return parts.map(function (p) {
+      return p[1] === S ? "<sup>" + p[0] + "</sup>" : p[0];
+    }).join("");
+  }
+
+  var EDGES = {
+    product: ["e-def-product"],
+    power: ["e-def-power"],
+    powerproduct: ["e-def-powerproduct"],
+    zero: ["e-product-zero"],
+    negative: ["e-zero-negative"],
+    quotient: ["e-negative-quotient"],
+    fractional: ["e-power-fractional"],
+    powerfraction: ["e-pp-pf", "e-neg-pf"]
+  };
+
+  var state = { base: 2, unlocked: { definition: true }, cells: {}, half: false };
+
+  // ---------- map ----------
+
+  var chipBox = document.getElementById("map-chips");
+  Object.keys(TIERS).forEach(function (id) {
+    var c = document.createElement("span");
+    c.className = "chip t-" + TIERS[id];
+    c.id = "chip-" + id;
+    c.innerHTML = "<span class='cn'>" + CHIP_LABELS[id] + "</span><span class='cf'>?</span>";
+    if (state.unlocked[id]) c.classList.add("lit");
+    chipBox.appendChild(c);
+  });
+
+  function revealFormula(id) {
+    var parts = FORMULAS[id];
+    if (!parts) return;
+    var t = document.getElementById("fx-" + id);
+    if (t) t.innerHTML = fxSvg(parts);
+    var chip = document.getElementById("chip-" + id);
+    if (chip) chip.querySelector(".cf").innerHTML = fxHtml(parts);
+  }
+
+  function unlock(id) {
+    if (state.unlocked[id]) return;
+    state.unlocked[id] = true;
+    var node = document.getElementById("n-" + id);
+    if (node) node.classList.add("lit");
+    var chip = document.getElementById("chip-" + id);
+    if (chip) chip.classList.add("lit");
+    (EDGES[id] || []).forEach(function (e) {
+      var el = document.getElementById(e);
+      if (el) el.classList.add("lit");
+    });
+    revealFormula(id);
+  }
+
+  revealFormula("definition");
+
+  // ---------- ledger ----------
+
+  var EXPS = [-3, -2, -1, 0, 1, 2, 3];
+  var ledger = document.getElementById("ledger");
+  var ledgerCard = document.getElementById("ledger-card");
+  var ledgerNote = document.getElementById("ledger-note");
+  var baseEl = document.getElementById("base");
+  var baseOut = document.getElementById("base-out");
+
+  function valueFor(a, n) {
+    if (a === 0) {
+      if (n > 0) return { text: "0", bad: false };
+      return { text: "undefined", bad: true };
+    }
+    if (n >= 0) return { text: String(Math.pow(a, n)), bad: false };
+    return { text: "1/" + Math.pow(a, -n), bad: false };
+  }
+
+  function renderLedger() {
+    var a = state.base;
+    ledger.innerHTML = "";
+    EXPS.forEach(function (n) {
+      var d = document.createElement("div");
+      var known = state.cells[n];
+      var v = valueFor(a, n);
+      d.className = "cell" + (known ? (n > 0 ? " known" : " just") : "");
+      if (known && v.bad) d.className = "cell bad";
+      d.innerHTML = "<span class='exp'>" + a + "<sup>" + (n < 0 ? "\u2212" + (-n) : n) + "</sup></span>" +
+                    "<span class='val" + (known ? "" : " unk") + "'>" + (known ? v.text : "?") + "</span>";
+      ledger.appendChild(d);
+
+      if (n === 0 && state.half) {
+        var h = document.createElement("div");
+        h.className = "cell half";
+        var r = a > 0 ? Math.sqrt(a).toFixed(2) : "\u2014";
+        h.innerHTML = "<span class='exp'>" + a + "<sup>\u00BD</sup></span>" +
+                      "<span class='val'>" + r + "</span>";
+        ledger.appendChild(h);
+      }
+    });
+
+    if (a === 0) {
+      ledgerNote.innerHTML = "With a base of 0 the ledger falls apart. 0<sup>0</sup> has no value the law can pin down, and 0<sup>\u22121</sup> would be 1 divided by 0. That is the whole reason the printed table says <em>a</em> \u2260 0.";
+      ledgerNote.hidden = false;
+    } else if (a === 1) {
+      ledgerNote.innerHTML = "Base 1 is legal but dull \u2014 every cell is 1, because multiplying by 1 never changes anything.";
+      ledgerNote.hidden = false;
+    } else {
+      ledgerNote.hidden = true;
+    }
+  }
+
+  baseEl.addEventListener("input", function () {
+    state.base = parseInt(baseEl.value, 10);
+    baseOut.textContent = state.base;
+    renderLedger();
+  });
+
+  function revealCells(list) {
+    list.forEach(function (n) { state.cells[n] = true; });
+    renderLedger();
+  }
+
+  // ---------- generic helpers ----------
+
+  function show(id) {
+    var el = document.getElementById(id);
+    el.hidden = false;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function wireToggle(unit, head) {
+    function flip() {
+      if (!unit.classList.contains("done")) return;
+      var open = !unit.classList.toggle("collapsed");
+      head.setAttribute("aria-expanded", String(open));
+    }
+    head.addEventListener("click", flip);
+    head.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); flip(); }
+    });
+  }
+
+  function makeSectionCollapsible(secId) {
+    var sec = document.getElementById(secId);
+    var kids = Array.prototype.slice.call(sec.children);
+    var head = document.createElement("div");
+    head.className = "sec-head";
+    var body = document.createElement("div");
+    body.className = "sec-body";
+    kids.forEach(function (k) {
+      if (k.classList.contains("sec-no") || k.tagName === "H2") head.appendChild(k);
+      else body.appendChild(k);
+    });
+    head.insertAdjacentHTML("beforeend",
+      "<span class='resolved'></span><span class='caret' aria-hidden='true'></span>");
+    sec.appendChild(head);
+    sec.appendChild(body);
+    wireToggle(sec, head);
+  }
+
+  ["sec-zero", "sec-negative", "sec-fractional", "sec-quotient", "sec-powerfraction"]
+    .forEach(makeSectionCollapsible);
+
+  function summary(ruleId) {
+    return "<span class='lbl'>" + CHIP_LABELS[ruleId] + "</span>" + fxHtml(FORMULAS[ruleId]);
+  }
+
+  function finishUnit(unit, ruleId) {
+    unit.classList.add("done", "collapsed");
+    var r = unit.querySelector(".resolved");
+    if (r) r.innerHTML = summary(ruleId);
+    var head = unit.querySelector(".sec-head, .q-head");
+    if (head) {
+      head.setAttribute("role", "button");
+      head.setAttribute("tabindex", "0");
+      head.setAttribute("aria-expanded", "false");
+      head.title = "Show this step again";
+    }
+  }
+
+  function finishSection(secId, ruleId) {
+    finishUnit(document.getElementById(secId), ruleId);
+  }
+
+  function askOnce(boxId, fbId, nextId, opts, onRight) {
+    var box = document.getElementById(boxId);
+    var fb = document.getElementById(fbId);
+    var next = nextId ? document.getElementById(nextId) : null;
+    var settled = false;
+    box.innerHTML = "";
+    opts.forEach(function (o) {
+      var b = document.createElement("button");
+      b.className = "opt";
+      b.type = "button";
+      b.innerHTML = o.html;
+      b.addEventListener("click", function () {
+        if (settled) return;
+        fb.innerHTML = o.note;
+        fb.hidden = false;
+        fb.className = "feedback " + (o.ok ? "right" : "wrong");
+        b.classList.add(o.ok ? "right" : "wrong");
+        if (o.ok) {
+          settled = true;
+          Array.prototype.forEach.call(box.children, function (c) { c.disabled = true; });
+          if (next) next.hidden = false;
+          if (onRight) onRight();
+        } else if (o.breaks) {
+          var law = document.getElementById(o.breaks);
+          if (law) { law.classList.add("broken"); setTimeout(function () { law.classList.remove("broken"); }, 1400); }
+        }
+      });
+      box.appendChild(b);
+    });
+  }
+
+  // ---------- part 1: tiles ----------
+
+  function toks(k, cls) {
+    var s = "";
+    for (var i = 0; i < k; i++) s += "<span class='tok " + cls + "'>" + (cls === "a" ? "a" : "b") + "</span>";
+    return s;
+  }
+  function grp(inner, extra) { return "<span class='grp" + (extra || "") + "'>" + inner + "</span>"; }
+
+  var TILE_STEPS = [
+    {
+      art: grp(toks(3, "a")) + "<span class='op'>&middot;</span>" + grp(toks(2, "a")),
+      q: "Three copies of <span class='var'>a</span> beside two more copies. Multiplied together, how many copies of <span class='var'>a</span> is that?",
+      opts: [
+        { html: "5", ok: true, note: "Three and two make five. Written out: <span class='var'>a</span><sup>3</sup> &middot; <span class='var'>a</span><sup>2</sup> = <span class='var'>a</span><sup>5</sup>. In general the exponents add \u2014 that is the <strong>product rule</strong>." },
+        { html: "6", ok: false, note: "That would be multiplying the exponents. Count the actual tiles instead: three, then two more." },
+        { html: "32", ok: false, note: "That is 2<sup>5</sup>. The question is how many tiles there are, not what the product equals for a particular base." },
+        { html: "9", ok: false, note: "Count the tiles in the picture. There are three in the left group and two in the right." }
+      ],
+      unlock: "product"
+    },
+    {
+      art: grp(toks(2, "a")) + grp(toks(2, "a")) + grp(toks(2, "a")),
+      q: "Now three groups, each holding two copies of <span class='var'>a</span> &mdash; that is (<span class='var'>a</span><sup>2</sup>)<sup>3</sup>. How many copies altogether?",
+      opts: [
+        { html: "6", ok: true, note: "Three groups of two. Here the exponents multiply: (<span class='var'>a</span><sup>x</sup>)<sup>y</sup> = <span class='var'>a</span><sup>xy</sup>. That is the <strong>power rule</strong>." },
+        { html: "5", ok: false, note: "Adding is what happens when you set piles side by side. Here each group is repeated, so count groups \u00d7 tiles per group." },
+        { html: "8", ok: false, note: "That is 2<sup>3</sup>. Count the tiles: three groups, two tiles each." },
+        { html: "9", ok: false, note: "Close counting, wrong shape \u2014 there are three groups of two, not three of three." }
+      ],
+      unlock: "power"
+    },
+    {
+      art: grp("<span class='tok a'>a</span><span class='tok b'>b</span>") +
+           grp("<span class='tok a'>a</span><span class='tok b'>b</span>") +
+           grp("<span class='tok a'>a</span><span class='tok b'>b</span>"),
+      q: "(<span class='var'>ab</span>)<sup>3</sup> is three copies of the pair. Multiplication lets you shuffle the tiles freely \u2014 so gather all the <span class='var'>a</span>s and all the <span class='var'>b</span>s. What do you get?",
+      opts: [
+        { html: "<span class='var'>a</span><sup>3</sup><span class='var'>b</span><sup>3</sup>", ok: true, note: "Three <span class='var'>a</span>s and three <span class='var'>b</span>s. Regrouping is legal because multiplication does not care about order \u2014 that is the <strong>power of a product</strong> rule." },
+        { html: "<span class='var'>a</span><sup>6</sup>", ok: false, note: "The <span class='var'>b</span> tiles are still there. They cannot turn into <span class='var'>a</span>s." },
+        { html: "3<span class='var'>ab</span>", ok: false, note: "Three copies <em>multiplied</em>, not added. Adding would give 3<span class='var'>ab</span>; multiplying gives something with exponents." },
+        { html: "<span class='var'>a</span><sup>3</sup> + <span class='var'>b</span><sup>3</sup>", ok: false, note: "Nothing in the picture is being added. Every tile is a factor." }
+      ],
+      unlock: "powerproduct"
+    }
+  ];
+
+  var tileStack = document.getElementById("tile-stack");
+
+  TILE_STEPS.forEach(function (s, i) {
+    var q = document.createElement("div");
+    q.className = "q";
+    q.id = "q-" + i;
+    if (i > 0) q.hidden = true;
+    q.innerHTML =
+      "<div class='q-head'>" +
+        "<span class='q-label'>Question " + (i + 1) + " of " + TILE_STEPS.length + "</span>" +
+        "<span class='resolved'></span>" +
+        "<span class='caret' aria-hidden='true'></span>" +
+      "</div>" +
+      "<div class='q-body'>" +
+        "<div class='tiles'>" + s.art + "</div>" +
+        "<p class='prompt'>" + s.q + "</p>" +
+        "<div class='options' id='tile-opts-" + i + "'></div>" +
+        "<div class='feedback' id='tile-fb-" + i + "' hidden></div>" +
+        "<button class='next' id='tile-next-" + i + "' hidden>Continue</button>" +
+      "</div>";
+    tileStack.appendChild(q);
+    wireToggle(q, q.querySelector(".q-head"));
+  });
+
+  TILE_STEPS.forEach(function (s, i) {
+    askOnce("tile-opts-" + i, "tile-fb-" + i, "tile-next-" + i, s.opts, function () {
+      unlock(s.unlock);
+    });
+    document.getElementById("tile-next-" + i).addEventListener("click", function () {
+      this.hidden = true;
+      finishUnit(document.getElementById("q-" + i), s.unlock);
+      if (i + 1 < TILE_STEPS.length) {
+        var nx = document.getElementById("q-" + (i + 1));
+        nx.hidden = false;
+        nx.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      } else {
+        ledgerCard.hidden = false;
+        revealCells([1, 2, 3]);
+        show("sec-zero");
+      }
+    });
+  });
+
+  // ---------- part 2: zero ----------
+
+  askOnce("o-zero", "f-zero", "n-zero-btn", [
+    { html: "0", ok: false, breaks: "law-zero", note: "0 &times; 8 = 0, not 8. Picking 0 makes the product rule false \u2014 and that rule was proved by counting, so it is not the thing that gets to be wrong here." },
+    { html: "1", ok: true, note: "1 &times; 8 = 8. The only number that leaves 8 untouched is 1, so <span class='var'>a</span><sup>0</sup> = 1 is not a convention someone picked \u2014 it is the only value the law permits." },
+    { html: "3", ok: false, breaks: "law-zero", note: "3 &times; 8 = 24. The law demands the product come back as 8." },
+    { html: "Undefined", ok: false, breaks: "law-zero", note: "If it had no value, then 2<sup>0</sup> &middot; 2<sup>3</sup> would have no value either. But the law already told us it equals 8." }
+  ], function () {
+    unlock("zero");
+    var l = document.getElementById("law-zero"); l.classList.remove("broken"); l.classList.add("held");
+    revealCells([0]);
+  });
+
+  document.getElementById("n-zero-btn").addEventListener("click", function () {
+    this.hidden = true;
+    finishSection("sec-zero", "zero");
+    show("sec-negative");
+  });
+
+  // ---------- part 3: negative ----------
+
+  askOnce("o-negative", "f-negative", "n-negative-btn", [
+    { html: "&minus;2", ok: false, breaks: "law-negative", note: "&minus;2 &times; 2 = &minus;4. A negative sign in the exponent does not put a negative sign on the value." },
+    { html: "&frac12;", ok: true, note: "&frac12; &times; 2 = 1. A negative exponent has to produce the reciprocal, because that is the only thing that multiplies back to 1. So <span class='var'>a</span><sup>&minus;x</sup> = 1 / <span class='var'>a</span><sup>x</sup>." },
+    { html: "0", ok: false, breaks: "law-negative", note: "0 &times; 2 = 0, and the law needs 1." },
+    { html: "&minus;&frac12;", ok: false, breaks: "law-negative", note: "&minus;&frac12; &times; 2 = &minus;1. Right size, wrong sign \u2014 and the law asks for exactly 1." }
+  ], function () {
+    unlock("negative");
+    var l = document.getElementById("law-negative"); l.classList.remove("broken"); l.classList.add("held");
+    revealCells([-1, -2, -3]);
+  });
+
+  document.getElementById("n-negative-btn").addEventListener("click", function () {
+    this.hidden = true;
+    finishSection("sec-negative", "negative");
+    show("sec-fractional");
+  });
+
+  // ---------- part 4: fractional ----------
+
+  askOnce("o-fractional", "f-fractional", "n-fractional-btn", [
+    { html: "1", ok: false, breaks: "law-fractional", note: "1 &times; 1 = 1, but the law needs 2." },
+    { html: "&radic;2", ok: true, note: "&radic;2 &times; &radic;2 = 2. Insisting the power rule holds has just forced an irrational number into existence \u2014 there is no fraction that squares to 2, so nothing simpler would have worked. In general <span class='var'>a</span><sup>1/y</sup> is the <span class='var'>y</span>th root of <span class='var'>a</span>." },
+    { html: "2", ok: false, breaks: "law-fractional", note: "2 &times; 2 = 4. Too big \u2014 you want the number that squares to 2, not the number 2 itself." },
+    { html: "&frac12;", ok: false, breaks: "law-fractional", note: "&frac12; &times; &frac12; = &frac14;. A fraction in the exponent does not make the value a fraction." }
+  ], function () {
+    unlock("fractional");
+    var l = document.getElementById("law-fractional"); l.classList.remove("broken"); l.classList.add("held");
+    state.half = true;
+    renderLedger();
+  });
+
+  document.getElementById("n-fractional-btn").addEventListener("click", function () {
+    this.hidden = true;
+    finishSection("sec-fractional", "fractional");
+    show("sec-quotient");
+  });
+
+  // ---------- parts 5 & 6: assembly ----------
+
+  var BANK = [
+    { id: "division",     label: "Definition of division" },
+    { id: "product",      label: "Product rule" },
+    { id: "power",        label: "Power rule" },
+    { id: "powerproduct", label: "Power of a product" },
+    { id: "zero",         label: "Zero exponent" },
+    { id: "negative",     label: "Negative exponent" }
+  ];
+
+  function buildPuzzle(cfg) {
+    var box = document.getElementById(cfg.deriv);
+    var bank = document.getElementById(cfg.bank);
+    var fb = document.getElementById(cfg.fb);
+    var next = document.getElementById(cfg.next);
+    var at = 0;
+
+    cfg.lines.forEach(function (ln, i) {
+      var d = document.createElement("div");
+      d.className = "line" + (i === 0 ? " active" : "");
+      d.id = cfg.deriv + "-l" + i;
+      d.innerHTML = "<span class='math'>" + ln.math + "</span><span class='why'>which rule?</span>";
+      box.appendChild(d);
+    });
+
+    BANK.forEach(function (r) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = r.label;
+      b.addEventListener("click", function () {
+        if (at >= cfg.lines.length) return;
+        var line = document.getElementById(cfg.deriv + "-l" + at);
+        if (r.id === cfg.lines[at].rule) {
+          line.classList.remove("active");
+          line.classList.add("done");
+          line.querySelector(".why").textContent = r.label;
+          fb.innerHTML = cfg.lines[at].note;
+          fb.hidden = false;
+          fb.className = "feedback right";
+          at++;
+          if (at < cfg.lines.length) {
+            document.getElementById(cfg.deriv + "-l" + at).classList.add("active");
+          } else {
+            Array.prototype.forEach.call(bank.children, function (c) { c.disabled = true; });
+            unlock(cfg.unlock);
+            next.hidden = false;
+          }
+        } else {
+          b.classList.add("shake");
+          setTimeout(function () { b.classList.remove("shake"); }, 320);
+          fb.innerHTML = cfg.lines[at].miss;
+          fb.hidden = false;
+          fb.className = "feedback wrong";
+        }
+      });
+      bank.appendChild(b);
+    });
+  }
+
+  buildPuzzle({
+    deriv: "d-quotient", bank: "b-quotient", fb: "f-quotient",
+    next: "n-quotient-btn", unlock: "quotient",
+    lines: [
+      { math: "<span class='var'>a</span><sup>x</sup> \u00F7 <span class='var'>a</span><sup>y</sup> = <span class='var'>a</span><sup>x</sup> &middot; (1 / <span class='var'>a</span><sup>y</sup>)",
+        rule: "division",
+        note: "Dividing by something is multiplying by its reciprocal. No exponent rule needed yet \u2014 this is just what division means.",
+        miss: "Nothing about exponents has happened yet on this line. Look at what the \u00F7 turned into." },
+      { math: "= <span class='var'>a</span><sup>x</sup> &middot; <span class='var'>a</span><sup>&minus;y</sup>",
+        rule: "negative",
+        note: "1 / <span class='var'>a</span><sup>y</sup> is exactly what a negative exponent was defined to mean.",
+        miss: "A reciprocal just became an exponent with a minus sign. Which rule licensed that swap?" },
+      { math: "= <span class='var'>a</span><sup>x&minus;y</sup>",
+        rule: "product",
+        note: "Two powers of the same base multiplied, so the exponents add: x + (&minus;y) = x &minus; y. The quotient rule was never a separate fact.",
+        miss: "Two powers of <span class='var'>a</span> are being multiplied together and the exponents combined into one." }
+    ]
+  });
+
+  document.getElementById("n-quotient-btn").addEventListener("click", function () {
+    this.hidden = true;
+    finishSection("sec-quotient", "quotient");
+    show("sec-powerfraction");
+  });
+
+  buildPuzzle({
+    deriv: "d-pf", bank: "b-pf", fb: "f-pf",
+    next: "n-pf-btn", unlock: "powerfraction",
+    lines: [
+      { math: "(<span class='var'>a</span> / <span class='var'>b</span>)<sup>x</sup> = (<span class='var'>a</span> &middot; <span class='var'>b</span><sup>&minus;1</sup>)<sup>x</sup>",
+        rule: "negative",
+        note: "1 / <span class='var'>b</span> rewritten as <span class='var'>b</span><sup>&minus;1</sup>, which turns a fraction into a product.",
+        miss: "A division was turned into a power with a minus sign in the exponent." },
+      { math: "= <span class='var'>a</span><sup>x</sup> &middot; (<span class='var'>b</span><sup>&minus;1</sup>)<sup>x</sup>",
+        rule: "powerproduct",
+        note: "A product raised to a power distributes across both factors.",
+        miss: "Something inside brackets was a product, and the outer exponent reached both parts of it." },
+      { math: "= <span class='var'>a</span><sup>x</sup> &middot; <span class='var'>b</span><sup>&minus;x</sup>",
+        rule: "power",
+        note: "A power raised to a power multiplies the exponents: (&minus;1)(x) = &minus;x.",
+        miss: "Two stacked exponents just collapsed into one. Which rule does that?" },
+      { math: "= <span class='var'>a</span><sup>x</sup> / <span class='var'>b</span><sup>x</sup>",
+        rule: "negative",
+        note: "And back the other way \u2014 the same rule you used on line one, running in reverse. Four moves, three rules, nothing new invented.",
+        miss: "A negative exponent turned back into a fraction. You have used this one already in this derivation." }
+    ]
+  });
+
+  document.getElementById("n-pf-btn").addEventListener("click", function () {
+    this.hidden = true;
+    finishSection("sec-powerfraction", "powerfraction");
+    show("sec-coda");
+  });
+
+  document.getElementById("try-zero").addEventListener("click", function () {
+    baseEl.value = 0;
+    state.base = 0;
+    baseOut.textContent = "0";
+    renderLedger();
+    ledgerCard.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+
+  renderLedger();
+})();
+</script>
+</body>
+</html>
